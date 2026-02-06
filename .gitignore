@@ -75,3 +75,26 @@ logs/
 *.temp
 temp/
 tmp/
+
+# Audio/Video Files
+*.m4a
+*.mp4
+
+# Data Files
+*.csv
+
+# Jupyter Notebooks
+*.ipynb
+
+# Music Output Directories
+2016/
+Kfolklore/
+Og/
+Peace/
+So Good-LoFi/
+TS lite/
+TSpark/
+The Fate of Ophelia/
+kAlec/
+kCar/
+kWeekend/.cache
