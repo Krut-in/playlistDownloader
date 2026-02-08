@@ -49,7 +49,7 @@ def get_theme_css(dark_mode: bool = True) -> str:
             
             'text_primary': '#171717',
             'text_secondary': '#525252',
-            'text_muted': '#a3a3a3',
+            'text_muted': '#737373',
             
             'accent': '#1DB954',
             'accent_hover': '#17a348',
@@ -57,13 +57,13 @@ def get_theme_css(dark_mode: bool = True) -> str:
             
             'success': '#16a34a',
             'success_bg': 'rgba(22, 163, 74, 0.08)',
-            'success_border': 'rgba(22, 163, 74, 0.15)',
+            'success_border': 'rgba(22, 163, 74, 0.2)',
             'warning': '#d97706',
             'warning_bg': 'rgba(217, 119, 6, 0.08)',
-            'warning_border': 'rgba(217, 119, 6, 0.15)',
+            'warning_border': 'rgba(217, 119, 6, 0.2)',
             'error': '#dc2626',
             'error_bg': 'rgba(220, 38, 38, 0.08)',
-            'error_border': 'rgba(220, 38, 38, 0.15)',
+            'error_border': 'rgba(220, 38, 38, 0.2)',
         }
     
     css = f"""
@@ -187,13 +187,13 @@ def get_theme_css(dark_mode: bool = True) -> str:
         /* Header */
         .app-header {{
             text-align: left;
-            padding: var(--space-4) 0 var(--space-5);
+            padding: 0 0 var(--space-4) 0;
             border-bottom: 1px solid var(--border);
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--space-6);
         }}
         
         .app-title {{
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
             color: var(--text-primary);
             margin: 0 0 var(--space-1) 0;
@@ -201,7 +201,7 @@ def get_theme_css(dark_mode: bool = True) -> str:
         }}
         
         .app-subtitle {{
-            font-size: 0.8125rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
             font-weight: 400;
             margin: 0;
@@ -224,14 +224,14 @@ def get_theme_css(dark_mode: bool = True) -> str:
             border: 1px solid var(--border) !important;
             border-radius: var(--radius-md) !important;
             color: var(--text-primary) !important;
-            padding: 10px 12px !important;
+            padding: 12px 16px !important;
             font-size: 0.875rem !important;
             transition: border-color 0.15s ease !important;
         }}
         
         .stTextInput > div > div > input:focus {{
             border-color: var(--accent) !important;
-            box-shadow: none !important;
+            box-shadow: 0 0 0 3px var(--accent-subtle) !important;
             outline: none !important;
         }}
         
@@ -244,7 +244,12 @@ def get_theme_css(dark_mode: bool = True) -> str:
             background: var(--surface) !important;
             border: 1px solid var(--border) !important;
             border-radius: var(--radius-md) !important;
-            transition: border-color 0.15s ease !important;
+            transition: all 0.15s ease !important;
+        }}
+        
+        .stSelectbox > div > div:focus-within {{
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px var(--accent-subtle) !important;
         }}
         
         .stSelectbox > div > div:hover {{
@@ -262,7 +267,7 @@ def get_theme_css(dark_mode: bool = True) -> str:
             background: var(--surface-elevated) !important;
             border: 1px solid var(--border) !important;
             border-radius: var(--radius-md) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24) !important;
         }}
         
         [data-baseweb="popover"] li,
@@ -270,6 +275,8 @@ def get_theme_css(dark_mode: bool = True) -> str:
         [role="option"] {{
             color: var(--text-primary) !important;
             background: transparent !important;
+            padding: var(--space-2) var(--space-3) !important;
+            transition: background 0.15s ease !important;
         }}
         
         [data-baseweb="popover"] li:hover,
@@ -292,16 +299,21 @@ def get_theme_css(dark_mode: bool = True) -> str:
             color: #ffffff !important;
             border: none !important;
             border-radius: var(--radius-md) !important;
-            padding: 8px 16px !important;
+            padding: 12px 24px !important;
             font-size: 0.875rem !important;
             font-weight: 500 !important;
             cursor: pointer !important;
             transition: background 0.15s ease !important;
-            min-height: 36px !important;
+            min-height: 40px !important;
         }}
         
         .stButton > button:hover {{
             background: var(--accent-hover) !important;
+        }}
+        
+        .stButton > button:focus {{
+            box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+            outline: none !important;
         }}
         
         .stButton > button:active {{
@@ -309,9 +321,11 @@ def get_theme_css(dark_mode: bool = True) -> str:
         }}
         
         .stButton > button:disabled {{
-            background: var(--border) !important;
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
             color: var(--text-muted) !important;
             cursor: not-allowed !important;
+            opacity: 0.6 !important;
         }}
         
         /* Secondary buttons */
@@ -319,11 +333,64 @@ def get_theme_css(dark_mode: bool = True) -> str:
             background: var(--surface) !important;
             border: 1px solid var(--border) !important;
             color: var(--text-primary) !important;
+            padding: 12px 24px !important;
+            min-height: 40px !important;
         }}
         
         button[data-testid="baseButton-secondary"]:hover {{
             background: var(--surface-elevated) !important;
             border-color: var(--border-hover) !important;
+        }}
+        
+        button[data-testid="baseButton-secondary"]:focus {{
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px var(--accent-subtle) !important;
+        }}
+        
+        /* Theme toggle - inline with header */
+        [data-testid="column"]:last-child:has(button[key="theme_toggle"]) {{
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: flex-end !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }}
+        
+        button[key="theme_toggle"],
+        .stButton > button[kind="secondary"] {{
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            min-height: 32px !important;
+            max-width: 32px !important;
+            max-height: 32px !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 6px !important;
+            color: var(--text-secondary) !important;
+            font-size: 0.875rem !important;
+            line-height: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.15s ease !important;
+            box-shadow: none !important;
+        }}
+        
+        button[key="theme_toggle"]:hover,
+        .stButton > button[kind="secondary"]:hover {{
+            background: var(--surface) !important;
+            border-color: var(--border-hover) !important;
+            color: var(--text-primary) !important;
+            box-shadow: none !important;
+        }}
+        
+        button[key="theme_toggle"]:focus,
+        .stButton > button[kind="secondary"]:focus {{
+            border-color: var(--border-hover) !important;
+            box-shadow: none !important;
+            outline: none !important;
         }}
         
         /* ========================================
@@ -334,18 +401,29 @@ def get_theme_css(dark_mode: bool = True) -> str:
             cursor: pointer !important;
         }}
         
+        .stCheckbox input[type="checkbox"] {{
+            accent-color: var(--accent) !important;
+            cursor: pointer !important;
+        }}
+        
+        .stCheckbox input[type="checkbox"]:focus {{
+            outline: 2px solid var(--accent) !important;
+            outline-offset: 2px !important;
+        }}
+        
         /* ========================================
            PROGRESS BAR
            ======================================== */
         .stProgress > div > div {{
             background: var(--border) !important;
             border-radius: 100px;
-            height: 6px !important;
+            height: 8px !important;
         }}
         
         .stProgress > div > div > div {{
             background: var(--accent) !important;
             border-radius: 100px;
+            transition: width 0.3s ease;
         }}
         
         /* ========================================
@@ -354,7 +432,7 @@ def get_theme_css(dark_mode: bool = True) -> str:
         .badge {{
             display: inline-flex;
             align-items: center;
-            padding: 3px 8px;
+            padding: 4px 8px;
             border-radius: var(--radius-sm);
             font-size: 0.6875rem;
             font-weight: 500;
@@ -365,18 +443,21 @@ def get_theme_css(dark_mode: bool = True) -> str:
             background: var(--success-bg);
             color: var(--success);
             border: 1px solid var(--success-border);
+            font-weight: 600;
         }}
         
         .badge-warning {{
             background: var(--warning-bg);
             color: var(--warning);
             border: 1px solid var(--warning-border);
+            font-weight: 600;
         }}
         
         .badge-error {{
             background: var(--error-bg);
             color: var(--error);
             border: 1px solid var(--error-border);
+            font-weight: 600;
         }}
         
         .badge-muted {{
@@ -426,18 +507,54 @@ def get_theme_css(dark_mode: bool = True) -> str:
             border: 1px solid var(--border) !important;
             border-radius: var(--radius-md) !important;
             color: var(--text-primary) !important;
+            transition: all 0.15s ease !important;
+        }}
+        
+        .streamlit-expanderHeader:hover {{
+            border-color: var(--border-hover) !important;
         }}
         
         /* ========================================
            TRACK INFO
            ======================================== */
+        .playlist-info-header {{
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }}
+        
+        .playlist-name {{
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }}
+        
+        .playlist-track-count {{
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }}
+        
+        .track-thumbnail-empty {{
+            width: 48px;
+            height: 48px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }}
+        
         .track-info {{ 
             flex: 1; 
             min-width: 0; 
         }}
         
         .track-name {{
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.875rem;
             color: var(--text-primary);
             white-space: nowrap;
@@ -446,11 +563,13 @@ def get_theme_css(dark_mode: bool = True) -> str:
         }}
         
         .track-artist {{
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 400;
             color: var(--text-secondary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 2px;
         }}
         
         /* ========================================
@@ -482,15 +601,15 @@ def get_theme_css(dark_mode: bool = True) -> str:
         .quota-fill {{
             height: 100%;
             border-radius: 100px;
-            transition: width 0.2s ease;
+            transition: width 0.3s ease, background 0.3s ease;
         }}
         
         /* ========================================
            SCROLLBAR
            ======================================== */
         ::-webkit-scrollbar {{ 
-            width: 8px; 
-            height: 8px; 
+            width: 12px; 
+            height: 12px; 
         }}
         ::-webkit-scrollbar-track {{ 
             background: transparent; 
@@ -522,6 +641,11 @@ def get_theme_css(dark_mode: bool = True) -> str:
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
+            transition: border-color 0.15s ease;
+        }}
+        
+        .stat-card:hover {{
+            border-color: var(--border-hover);
         }}
         
         .stat-card-success {{
@@ -544,6 +668,203 @@ def get_theme_css(dark_mode: bool = True) -> str:
             letter-spacing: 0.04em;
             margin-top: var(--space-1);
         }}
+        
+        /* ========================================
+           TRACK TABLE
+           ======================================== */
+        .track-row {{
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
+        }}
+        
+        .track-row:hover {{
+            background: var(--surface);
+        }}
+        
+        .track-row:last-child {{
+            border-bottom: none;
+        }}
+        
+        .stats-header {{
+            display: flex;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+            padding: var(--space-3);
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--surface);
+            border-radius: var(--radius-md);
+        }}
+        
+        .stats-count {{
+            margin-left: auto;
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+        }}
+        
+        /* ========================================
+           SECTION HEADERS
+           ======================================== */
+        .section-header {{
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--border);
+            letter-spacing: -0.01em;
+        }}
+        
+        /* ========================================
+           DOWNLOAD PROGRESS
+           ======================================== */
+        .download-progress-container {{
+            margin: var(--space-4) 0;
+        }}
+        
+        .progress-meta {{
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-2);
+            align-items: center;
+        }}
+        
+        .progress-count {{
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+        }}
+        
+        .progress-percent {{
+            color: var(--accent);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }}
+        
+        .progress-track-name {{
+            font-size: 0.875rem;
+            margin-top: var(--space-2);
+            color: var(--text-primary);
+            font-weight: 500;
+        }}
+        
+        /* ========================================
+           COMPLETION SUMMARY
+           ======================================== */
+        .completion-header {{
+            text-align: center;
+            margin: var(--space-6) 0 var(--space-4) 0;
+        }}
+        
+        .completion-title {{
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            letter-spacing: -0.02em;
+        }}
+        
+        .completion-subtitle {{
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.875rem;
+        }}
+        
+        .folder-path-container {{
+            text-align: center;
+            margin-top: var(--space-4);
+            padding: var(--space-3);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }}
+        
+        .folder-path-label {{
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+        }}
+        
+        .folder-path {{
+            background: var(--surface);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            border: 1px solid var(--border);
+            font-family: ui-monospace, 'Cascadia Code', 'SF Mono', Monaco, 'Courier New', monospace;
+            color: var(--text-primary);
+            word-break: break-all;
+        }}
+        
+        /* ========================================
+           FAILED TRACKS
+           ======================================== */
+        .failed-track-item {{
+            padding: var(--space-3);
+            background: var(--error-bg);
+            border-left: 3px solid var(--error);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-bottom: var(--space-2);
+            transition: background 0.15s ease;
+        }}
+        
+        .failed-track-item:hover {{
+            background: var(--error-border);
+        }}
+        
+        .failed-track-name {{
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }}
+        
+        .failed-track-error {{
+            font-size: 0.75rem;
+            color: var(--error);
+            margin-top: var(--space-1);
+        }}
+        
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 768px) {{
+            .app-title {{
+                font-size: 1.25rem;
+            }}
+            
+            .completion-title {{
+                font-size: 1.25rem;
+            }}
+            
+            .stat-value {{
+                font-size: 1.25rem;
+            }}
+            
+            [data-testid="column"]:last-child:has(.stButton) {{
+                top: 12px !important;
+                right: 12px !important;
+            }}
+            
+            .stats-header {{
+                padding: var(--space-2);
+            }}
+        }}
+        
+        @media (max-width: 480px) {{
+            section.main > div.block-container,
+            section[data-testid="stMain"] > div,
+            .block-container,
+            [data-testid="stMainBlockContainer"] {{
+                padding: 0 var(--space-4) var(--space-4) !important;
+            }}
+            
+            .app-header {{
+                padding: var(--space-3) 0;
+                margin-bottom: var(--space-4);
+            }}
+            
+            .stat-card {{
+                padding: var(--space-3);
+            }}
+        }}
     </style>
     """
     
@@ -556,13 +877,5 @@ def apply_theme(dark_mode: bool = True):
 
 
 def render_theme_toggle():
-    """Render the theme toggle"""
-    col1, col2 = st.columns([12, 1])
-    
-    with col2:
-        current_mode = st.session_state.get('dark_mode', True)
-        toggle_icon = "◐" if current_mode else "◑"
-        
-        if st.button(toggle_icon, key="theme_toggle", help="Toggle theme"):
-            st.session_state.dark_mode = not current_mode
-            st.rerun()
+    """Deprecated - theme toggle now integrated in header"""
+    pass

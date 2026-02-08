@@ -85,10 +85,7 @@ def main():
     # Apply theme
     apply_theme(st.session_state.get('dark_mode', True))
     
-    # Render theme toggle
-    render_theme_toggle()
-    
-    # Render header
+    # Render header with inline theme toggle
     render_header()
     
     # Initialize clients

@@ -8,13 +8,24 @@ from typing import List, Dict, Any, Optional
 
 
 def render_header():
-    """Render clean application header"""
-    st.markdown('''
-        <div class="app-header">
-            <h1 class="app-title">Playlist Downloader</h1>
-            <p class="app-subtitle">Download from Spotify & YouTube playlists</p>
-        </div>
-    ''', unsafe_allow_html=True)
+    """Render clean application header with theme toggle"""
+    col1, col2 = st.columns([11, 1])
+    
+    with col1:
+        st.markdown('''
+            <div class="app-header">
+                <h1 class="app-title">Playlist Downloader</h1>
+                <p class="app-subtitle">Download from Spotify & YouTube playlists</p>
+            </div>
+        ''', unsafe_allow_html=True)
+    
+    with col2:
+        current_mode = st.session_state.get('dark_mode', True)
+        toggle_icon = "☀" if current_mode else "🌙"
+        
+        if st.button(toggle_icon, key="theme_toggle"):
+            st.session_state.dark_mode = not current_mode
+            st.rerun()
 
 
 def render_url_input() -> tuple:
@@ -61,7 +72,7 @@ def render_playlist_info(playlist_meta: Any, track_count: int, url_type: str):
     with col1:
         image_url = getattr(playlist_meta, 'image_url', '')
         if image_url:
-            st.image(image_url, width=56)
+            st.image(image_url, width=64)
     
     with col2:
         name = getattr(playlist_meta, 'name', 'Unknown')
@@ -74,10 +85,10 @@ def render_playlist_info(playlist_meta: Any, track_count: int, url_type: str):
         
         type_label = url_type.replace('_', ' ').title()
         st.markdown(f'''
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <span style="font-weight: 600; font-size: 0.9375rem; color: var(--text-primary);">{name}</span>
+            <div class="playlist-info-header">
+                <span class="playlist-name">{name}</span>
                 <span class="badge {badge_class}">{type_label}</span>
-                <span style="color: var(--text-secondary); font-size: 0.75rem;">{track_count} tracks</span>
+                <span class="playlist-track-count">{track_count} tracks</span>
             </div>
         ''', unsafe_allow_html=True)
 
@@ -97,12 +108,12 @@ def render_quota_indicator(quota_used: int, daily_limit: int = 10000):
         status = "Critical"
     
     st.markdown(f'''
-        <div class="quota-container">
+        <div class="quota-container" role="status" aria-label="API Quota Usage">
             <div class="quota-header">
                 <span class="quota-label">API Quota · {status}</span>
                 <span class="quota-label">{quota_used:,} / {daily_limit:,}</span>
             </div>
-            <div class="quota-bar">
+            <div class="quota-bar" role="progressbar" aria-valuenow="{int(percentage)}" aria-valuemin="0" aria-valuemax="100" aria-label="{int(percentage)}% quota used">
                 <div class="quota-fill" style="width: {percentage}%; background: {color};"></div>
             </div>
         </div>
@@ -124,33 +135,34 @@ def render_track_table(
     pending_count = len(tracks) - matched_count - failed_count
     
     st.markdown(f'''
-        <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+        <div class="stats-header">
             <span class="badge badge-success">{matched_count} Matched</span>
             <span class="badge badge-error">{failed_count} Failed</span>
             <span class="badge badge-muted">{pending_count} Pending</span>
-            <span style="margin-left: auto; color: var(--text-secondary); font-size: 0.8125rem;">
-                {len(selected_tracks)} selected
-            </span>
+            <span class="stats-count">{len(selected_tracks)} selected</span>
         </div>
     ''', unsafe_allow_html=True)
     
     col1, col2 = st.columns([1, 4])
     
     with col1:
+        # Callback function for select all checkbox
+        def on_select_all_change():
+            if st.session_state.select_all_checkbox:
+                # Select all tracks
+                st.session_state.selected_tracks = set(range(len(tracks)))
+            else:
+                # Deselect all tracks
+                st.session_state.selected_tracks = set()
+        
         select_all = st.checkbox(
             "Select all",
             value=len(selected_tracks) == len(tracks) and len(tracks) > 0,
-            key="select_all_checkbox"
+            key="select_all_checkbox",
+            on_change=on_select_all_change
         )
-        
-        if select_all and len(selected_tracks) != len(tracks):
-            st.session_state.selected_tracks = set(range(len(tracks)))
-            st.rerun()
-        elif not select_all and len(selected_tracks) == len(tracks) and len(tracks) > 0:
-            st.session_state.selected_tracks = set()
-            st.rerun()
     
-    st.markdown("---")
+    st.markdown('<div style="margin: var(--space-4) 0;"></div>', unsafe_allow_html=True)
     
     # Track list
     for idx, track in enumerate(tracks):
@@ -159,28 +171,33 @@ def render_track_table(
         error = matching_errors.get(idx, "")
         has_match = len(matches) > 0
         
-        cols = st.columns([0.4, 0.8, 3, 1.5, 2])
+        # Start track row wrapper
+        st.markdown('<div class="track-row">', unsafe_allow_html=True)
+        
+        cols = st.columns([1, 2, 8, 2, 4])
         
         with cols[0]:
+            # Callback function for individual track checkbox
+            def on_track_select_change(track_idx=idx):
+                if st.session_state[f"track_select_{track_idx}"]:
+                    st.session_state.selected_tracks.add(track_idx)
+                else:
+                    st.session_state.selected_tracks.discard(track_idx)
+            
             is_selected = st.checkbox(
                 "Select",
                 value=idx in selected_tracks,
                 key=f"track_select_{idx}",
-                label_visibility="collapsed"
+                label_visibility="collapsed",
+                on_change=on_track_select_change,
+                args=(idx,)
             )
-            
-            if is_selected and idx not in st.session_state.selected_tracks:
-                st.session_state.selected_tracks.add(idx)
-            elif not is_selected and idx in st.session_state.selected_tracks:
-                st.session_state.selected_tracks.discard(idx)
         
         with cols[1]:
             if has_match and matches[selected_match_idx].thumbnail_url:
-                st.image(matches[selected_match_idx].thumbnail_url, width=44)
+                st.image(matches[selected_match_idx].thumbnail_url, width=48)
             else:
-                st.markdown('''
-                    <div style="width: 44px; height: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);"></div>
-                ''', unsafe_allow_html=True)
+                st.markdown('<div class="track-thumbnail-empty">♪</div>', unsafe_allow_html=True)
         
         with cols[2]:
             st.markdown(f'''
@@ -212,21 +229,29 @@ def render_track_table(
                 
                 if new_selection != selected_match_idx:
                     st.session_state.selected_match_indices[idx] = new_selection
+        
+        # Close track row wrapper
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 def render_download_button(selected_count: int) -> bool:
     """Render download button with count"""
-    label = f"Download {selected_count} Tracks" if selected_count > 0 else "Select tracks to download"
+    if selected_count > 0:
+        label = f"Download {selected_count} Track{'s' if selected_count != 1 else ''}"
+    else:
+        label = "Select tracks to download"
+    
     return st.button(
         label,
         type="primary",
-        disabled=selected_count == 0
+        disabled=selected_count == 0,
+        use_container_width=True
     )
 
 
 def render_download_progress(current: int, total: int, current_track: str, status: str, thumbnail_url: str = None):
     """Render download progress"""
-    st.markdown("#### Downloading")
+    st.markdown('<h3 class="section-header">Downloading</h3>', unsafe_allow_html=True)
     
     if thumbnail_url:
         col1, col2 = st.columns([1, 3])
@@ -239,11 +264,11 @@ def render_download_progress(current: int, total: int, current_track: str, statu
             st.progress(progress)
             
             st.markdown(f'''
-                <div style="display: flex; justify-content: space-between; margin-top: 8px; align-items: center;">
-                    <span style="color: var(--text-secondary); font-size: 0.8125rem;">{current} of {total}</span>
-                    <span style="color: var(--accent); font-weight: 500; font-size: 0.875rem;">{int(progress * 100)}%</span>
+                <div class="progress-meta">
+                    <span class="progress-count">{current} of {total}</span>
+                    <span class="progress-percent">{int(progress * 100)}%</span>
                 </div>
-                <p style="font-size: 0.8125rem; margin-top: 8px; color: var(--text-primary);">
+                <p class="progress-track-name">
                     {current_track[:50]}{"..." if len(current_track) > 50 else ""}
                 </p>
             ''', unsafe_allow_html=True)
@@ -252,11 +277,11 @@ def render_download_progress(current: int, total: int, current_track: str, statu
         st.progress(progress)
         
         st.markdown(f'''
-            <div style="display: flex; justify-content: space-between; margin-top: 8px; align-items: center;">
-                <span style="color: var(--text-secondary); font-size: 0.8125rem;">{current} of {total}</span>
-                <span style="color: var(--accent); font-weight: 500; font-size: 0.875rem;">{int(progress * 100)}%</span>
+            <div class="progress-meta">
+                <span class="progress-count">{current} of {total}</span>
+                <span class="progress-percent">{int(progress * 100)}%</span>
             </div>
-            <p style="font-size: 0.8125rem; margin-top: 8px; color: var(--text-primary);">
+            <p class="progress-track-name">
                 {current_track[:50]}{"..." if len(current_track) > 50 else ""}
             </p>
         ''', unsafe_allow_html=True)
@@ -275,27 +300,29 @@ def render_completion_summary(
     # Header message
     if success_rate >= 90:
         st.markdown('''
-            <div style="text-align: center; margin: 16px 0;">
-                <h3 style="color: var(--success); margin-bottom: 4px;">Download Complete</h3>
-                <p style="color: var(--text-secondary); margin: 0; font-size: 0.875rem;">Your music is ready</p>
+            <div class="completion-header">
+                <h3 class="completion-title" style="color: var(--success);">Download Complete</h3>
+                <p class="completion-subtitle">Your music is ready</p>
             </div>
         ''', unsafe_allow_html=True)
     elif success_rate >= 50:
         st.markdown('''
-            <div style="text-align: center; margin: 16px 0;">
-                <h3 style="color: var(--warning); margin-bottom: 4px;">Partially Complete</h3>
-                <p style="color: var(--text-secondary); margin: 0; font-size: 0.875rem;">Some tracks had issues</p>
+            <div class="completion-header">
+                <h3 class="completion-title" style="color: var(--warning);">Partially Complete</h3>
+                <p class="completion-subtitle">Some tracks had issues</p>
             </div>
         ''', unsafe_allow_html=True)
     else:
         st.markdown('''
-            <div style="text-align: center; margin: 16px 0;">
-                <h3 style="color: var(--error); margin-bottom: 4px;">Issues Encountered</h3>
-                <p style="color: var(--text-secondary); margin: 0; font-size: 0.875rem;">Check failed tracks below</p>
+            <div class="completion-header">
+                <h3 class="completion-title" style="color: var(--error);">Issues Encountered</h3>
+                <p class="completion-subtitle">Check failed tracks below</p>
             </div>
         ''', unsafe_allow_html=True)
     
     # Stats cards
+    st.markdown('<div style="margin: var(--space-6) 0;"></div>', unsafe_allow_html=True)
+    
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -324,36 +351,38 @@ def render_completion_summary(
         ''', unsafe_allow_html=True)
     
     st.markdown(f'''
-        <p style="font-size: 0.8125rem; margin-top: 16px; text-align: center;">
-            <span style="color: var(--text-muted);">Saved to:</span> 
-            <code style="background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; border: 1px solid var(--border);">
-                {output_folder}
-            </code>
-        </p>
+        <div class="folder-path-container">
+            <span class="folder-path-label">Saved to:</span><br>
+            <code class="folder-path">{output_folder}</code>
+        </div>
     ''', unsafe_allow_html=True)
+    
+    st.markdown('<div style="margin: var(--space-4) 0;"></div>', unsafe_allow_html=True)
     
     # Failed tracks
     if failed_tracks:
         with st.expander(f"View {len(failed_tracks)} failed tracks"):
             for track_name, error in failed_tracks:
                 st.markdown(f'''
-                    <div style="padding: 12px; background: var(--error-bg); border-left: 2px solid var(--error); border-radius: 0 6px 6px 0; margin-bottom: 8px;">
-                        <div style="font-weight: 500; color: var(--text-primary); font-size: 0.875rem;">{track_name}</div>
-                        <div style="font-size: 0.75rem; color: var(--error); margin-top: 4px;">{error}</div>
+                    <div class="failed-track-item">
+                        <div class="failed-track-name">{track_name}</div>
+                        <div class="failed-track-error">{error}</div>
                     </div>
                 ''', unsafe_allow_html=True)
     
     st.markdown("---")
     
+    st.markdown('<div style="margin-top: var(--space-4);"></div>', unsafe_allow_html=True)
+    
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("Open Folder"):
+        if st.button("Open Folder", use_container_width=True, type="secondary"):
             import subprocess
             subprocess.run(['open', output_folder])
     
     with col2:
-        if st.button("Start New"):
+        if st.button("Start New", use_container_width=True, type="primary"):
             from .state import reset_session_state
             reset_session_state()
             st.rerun()
